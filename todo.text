@@ -1,0 +1,4 @@
+- The starting location of the grid panel is still 0,0 in the top left, it should be such that the initial panel is the exact center of the matrix
+- Add a combo box to change ant direction on placement
+- Make reset delete all ants
+- Fix tick rate slider 
