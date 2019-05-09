@@ -1,4 +1,4 @@
-package test;
+package CellularAutomata.parts;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -8,31 +8,23 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.Timer;
 
+// TODO: Deprecated, turn this into an interface for grids at some point
+
 public class Grid extends JPanel implements MouseListener, MouseMotionListener{
 	
 	private int _width;
 	private int _height;
-	
-	// size of each square in the grid
 	private int _cell_size;
-	
-	// top left pixel to start drawing grid at
 	private int _x;
 	private int _y;
-	
-	// QoL
 	private int _rows;
 	private int _columns;
-	
 	private Color _cellColor;
-	
 	private boolean _drag_mode;
 	private boolean _edit_mode;
+	private SquareCell[][] _cells;
 	
-	// 2D array of cell objects
-	private Cell[][] _cells;
-	
-	public Grid(int width, int height, int squareSize) {
+	public Grid(int width, int height, int cellSize) {
 		
 		setLayout(new BorderLayout());
 		setPreferredSize(new Dimension(width, height));
@@ -40,11 +32,11 @@ public class Grid extends JPanel implements MouseListener, MouseMotionListener{
 		addMouseListener(this);
 		addMouseMotionListener(this);
 		
-		_cell_size = squareSize;
-		_rows = (int) (width/squareSize);
-		_columns = (int) (height/squareSize);
-		_width = squareSize*_rows;
-		_height = squareSize*_columns;
+		_cell_size = cellSize;
+		_rows = (int) (width/cellSize);
+		_columns = (int) (height/cellSize);
+		_width = cellSize*_rows;
+		_height = cellSize*_columns;
 		_x = 0;
 		_y = 0;
 		_cellColor = Color.BLACK;
@@ -52,10 +44,10 @@ public class Grid extends JPanel implements MouseListener, MouseMotionListener{
 		_edit_mode = true;
 		
 		// Create the data structure
-		_cells = new Cell[_rows][_columns];
+		_cells = new SquareCell[_rows][_columns];
 		for (int x = 0; x < _rows; x++) {
 			for (int y = 0; y < _columns; y++) {
-				_cells[x][y] = new Cell(x, y);
+				_cells[x][y] = new SquareCell(x, y);
 			}
 		}
 		
@@ -66,12 +58,6 @@ public class Grid extends JPanel implements MouseListener, MouseMotionListener{
 	public void paint(Graphics g) {
 		super.paint(g);
 		
-//		for (int x = 0; x < _rows; x++) {
-//			for (int y = 0; y < _columns; y++) {
-//				_cells[x][y] = new Cell(x, y);
-//			}
-//		}
-		
 		Graphics2D g2 = (Graphics2D) g;
 		
 		// Background
@@ -80,17 +66,17 @@ public class Grid extends JPanel implements MouseListener, MouseMotionListener{
 		
 		// Draw lines
 		g2.setColor(Color.BLACK);
-		for (int i=0; i<=_height; i+=_cell_size) {
+		for (int i=0; i<=_cell_size*_rows; i+=_cell_size) {
 			g2.drawLine(_x, _y + i, _x + _width, _y + i);
 		}
-		for (int i=0; i<=_width; i+=_cell_size) {
+		for (int i=0; i<=_cell_size*_columns; i+=_cell_size) {
 			g2.drawLine(_x + i, _y, _x + i, _y + _height);
 		}
 		
 		// Color live cells
 		g2.setColor(_cellColor);
-		for (Cell[] row: _cells) {
-			for (Cell cell: row) {
+		for (SquareCell[] row: _cells) {
+			for (SquareCell cell: row) {
 				if (cell.isAlive()) {
 					g2.fillRect((cell.x*_cell_size) + _x, 
 							(cell.y*_cell_size) + _y, 
@@ -111,7 +97,7 @@ public class Grid extends JPanel implements MouseListener, MouseMotionListener{
 		return _columns;
 	}
 	
-	public Cell getCell(int x, int y) {
+	public SquareCell getCell(int x, int y) {
 		try {
 			return _cells[x][y];
 		} catch (ArrayIndexOutOfBoundsException e) {
@@ -119,23 +105,25 @@ public class Grid extends JPanel implements MouseListener, MouseMotionListener{
 		}
 	}
 	
-	public Cell[][] getCells() {
+	public SquareCell[][] getCells() {
 		return _cells;
 	}
 
 	public void setWidth(int n) {
 		_width = n;
+		_columns = n/_cell_size;
 	}
 	
 	public void setHeight(int n) {
 		_height = n;
+		_rows = n/_cell_size;
 	}
 	
-	public int getSquareSize() {
+	public int getCellSize() {
 		return _cell_size;
 	}
 	
-	public void setSquareSize(int n) {
+	public void setCellSize(int n) {
 		_cell_size = n;
 	}
 	
@@ -207,7 +195,7 @@ public class Grid extends JPanel implements MouseListener, MouseMotionListener{
 	
 	/*************** Helpers ***************/
 	
-	private Cell mouseCell(MouseEvent e) {
+	private SquareCell mouseCell(MouseEvent e) {
 		try {
 			return _cells[e.getX()/_cell_size][e.getY()/_cell_size];
 		} catch (ArrayIndexOutOfBoundsException ex) {
@@ -216,11 +204,11 @@ public class Grid extends JPanel implements MouseListener, MouseMotionListener{
 	} 
 
 	private void findNeighbors() {
-		for (Cell[] row: _cells) {
-			for (Cell cell: row) {
+		for (SquareCell[] row: _cells) {
+			for (SquareCell cell: row) {
 				int x = cell.x;
 				int y = cell.y;
-				cell.setNeighbors(new Cell[] {
+				cell.setNeighbors(new SquareCell[] {
 						getCell(x-1,y-1),	getCell(x,y-1), 	getCell(x+1,y-1),
 						getCell(x-1,y),		/***(▰˘◡˘▰)***/		getCell(x+1,y),
 						getCell(x-1,y+1),	getCell(x,y+1),		getCell(x+1,y+1)
