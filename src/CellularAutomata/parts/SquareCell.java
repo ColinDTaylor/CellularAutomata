@@ -111,7 +111,7 @@ public class SquareCell implements Cell {
 		_marked = false;
 		_alive = false;
 		_age = 0;
-		
+		_has_ant = false;
 	}
 	
 	public int liveNeighbors() {

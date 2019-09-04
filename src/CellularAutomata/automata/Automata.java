@@ -14,5 +14,9 @@ public interface Automata extends ActionListener {
 	
 	public void setModel(Model model);
 	
+	// setRule takes in a string in the Golly format, parses it, and
+	// adjust the ruleset accordingly
+	public boolean setRule(String rule);
+	
 	public ID type();
 }

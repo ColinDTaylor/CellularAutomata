@@ -22,6 +22,8 @@ public class SquareGrid extends JPanel implements MouseListener, MouseMotionList
 	
 	private int _view_width;
 	private int _view_height;
+	private int _view_rows;
+	private int _view_columns;
 	private int _cell_size;
 	private int _view_x;
 	private int _view_y;
@@ -34,6 +36,8 @@ public class SquareGrid extends JPanel implements MouseListener, MouseMotionList
 	private ArrayList<SquareAnt> _ants;
 	private int _ant_pad;
 	private boolean _place_ants;
+	private boolean _gridlines;
+	private SquareAnt.Direction _ant_dir;
 	
 	public SquareGrid(SquareCell[][] cells) {
 		
@@ -45,6 +49,8 @@ public class SquareGrid extends JPanel implements MouseListener, MouseMotionList
 		addMouseListener(this);
 		addMouseMotionListener(this);
 		
+		_gridlines = true;
+		
 		_cells = cells;
 		_cell_size = 15;
 		_ant_pad = 2;
@@ -52,12 +58,17 @@ public class SquareGrid extends JPanel implements MouseListener, MouseMotionList
 		_cell_color = Color.BLACK;
 		_drag_mode = false;
 		_allow_edits = true;
+		_ant_dir = SquareAnt.Direction.WEST;
 		
+		// these are total numbers, so quite a lot for a large array
 		_rows = _cells.length;
 		_columns = _cells[0].length;
 		
-		// x and y here refer to the top leftmost array indexes on the view
+		_view_rows = _view_height/_cell_size;
+		_view_columns = _view_width/_cell_size;
 		
+		// x and y here refer to the top leftmost array indexes on the view
+		// right now it initializes to the the midpoint of the array
 		_view_x = _rows/2;
 		_view_y = _columns/2;
 		
@@ -85,35 +96,46 @@ public class SquareGrid extends JPanel implements MouseListener, MouseMotionList
 		g2.setColor(Color.WHITE);
 		g2.fillRect(0,0, _view_width, _view_height);
 		
-		// horizontal lines
-		g2.setColor(Color.BLACK);
-		for (int i=0; i<=_view_height; i+= _cell_size) {
-			g2.drawLine(0, 0 + i, 0 + _view_width, 0 + i);
-		}
-		
-		// vertical lines
-		for (int i=0; i<=_view_width; i+= _cell_size) {
-			g2.drawLine(0 + i, 0, 0 + i, 0 + _view_height);
+		if (_gridlines) {
+			// horizontal lines
+			g2.setColor(Color.BLACK);
+			for (int i=0; i<=_view_height; i+= _cell_size) {
+				g2.drawLine(0, 0 + i, 0 + _view_width, 0 + i);
+			}
+			
+			// vertical lines
+			for (int i=0; i<=_view_width; i+= _cell_size) {
+				g2.drawLine(0 + i, 0, 0 + i, 0 + _view_height);
+			}
 		}
 		
 		// These if statements should prevent trying to draw nonexistent cells by setting _view_y or _view_x too far in the corner
-		if (_cells[0].length < _view_x+_columns) {
-			_view_x = _cells[0].length - _columns;
-		}
-		if (_cells.length < _view_y+_rows) {
-			_view_y = _cells.length - _rows;
-		}
+//		if (_cells[0].length < _view_x+_columns) {
+//			_view_x = _cells[0].length - _columns;
+//		}
+//		if (_cells.length < _view_y+_rows) {
+//			_view_y = _cells.length - _rows;
+//		}
 		
 		// Color live cells
 		g2.setColor(_cell_color);
-		for (int x=0; x < _rows; x++) {
-			for (int y=0; y<_columns; y++) {
+		for (int x=0; x < _view_rows; x++) {
+			for (int y=0; y<_view_columns; y++) {
 				SquareCell cell = _cells[x+_view_x][y+_view_y];
+				
+				// if cell isn't in view, continue
+				// TODO: write a helper function to determine if a cell is in view
+				if (cell.x < _view_x
+					|| cell.y < _view_y
+					|| cell.x > _view_x + _view_columns
+					|| cell.y > _view_y + _view_rows) {
+					continue;
+				}
+				
 				if (cell.isAlive()) {
-					System.out.println("Painting Cell at " + cell.getX() + ", " + cell.getY());
 					
-					g2.fillRect((cell.x*_cell_size), 
-							(cell.y*_cell_size), 
+					g2.fillRect(((cell.x-_view_x)*_cell_size), 
+							((cell.y-_view_y)*_cell_size), 
 							_cell_size, 
 							_cell_size);
 				}
@@ -129,8 +151,8 @@ public class SquareGrid extends JPanel implements MouseListener, MouseMotionList
 			int ant_size = _cell_size - _ant_pad*2 + 1;
 			
 			// the +1 here is to account for the border
-			int xloc = (cell.x*_cell_size) + _ant_pad;
-			int yloc = (cell.y*_cell_size) + _ant_pad;
+			int xloc = ((cell.x-_view_x)*_cell_size) + _ant_pad;
+			int yloc = ((cell.y-_view_y)*_cell_size) + _ant_pad;
 			
 			// draw ant body
 			g2.setColor(ant.getColor());
@@ -206,12 +228,12 @@ public class SquareGrid extends JPanel implements MouseListener, MouseMotionList
 
 	public void setViewWidth(int n) {
 		_view_width = n;
-		_columns = n/_cell_size;
+		_view_columns = n/_cell_size;
 	}
 	
 	public void setViewHeight(int n) {
 		_view_height = n;
-		_rows = n/_cell_size;
+		_view_rows = n/_cell_size;
 	}
 	
 	public int getCellSize() {
@@ -219,11 +241,21 @@ public class SquareGrid extends JPanel implements MouseListener, MouseMotionList
 	}
 	
 	public void setCellSize(int n) {
+		_view_rows = _view_height/_cell_size;
+		_view_columns = _view_width/_cell_size;
 		_cell_size = n;
+	}
+	
+	public void setGridlines(boolean b) {
+		_gridlines = b;
 	}
 	
 	public void setPlaceAnts(boolean b) {
 		_place_ants = b;
+	}
+	
+	public void setAntDir(SquareAnt.Direction d) {
+		_ant_dir = d;
 	}
 	
 	public void allowEdits(boolean b) {
@@ -248,7 +280,7 @@ public class SquareGrid extends JPanel implements MouseListener, MouseMotionList
 		if (_place_ants) {
 			cell.setAnt(!cell.hasAnt());
 			// TODO: for now, all ant IDs are just random 4 digit integers
-			_ants.add(new SquareAnt(cell.x, cell.y, (int) Math.random()*10000));
+			_ants.add(new SquareAnt(cell.x, cell.y, (int) Math.random()*10000, _ant_dir));
 		} else {
 			cell.toggle();
 		}

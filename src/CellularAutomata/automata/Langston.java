@@ -68,4 +68,10 @@ public class Langston implements Automata {
 	public ID type() {
 		return ID.LANGSTON;
 	}
+
+	@Override
+	public boolean setRule(String rule) {
+		// TODO Langston setRule
+		return true;
+	}
 }

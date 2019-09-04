@@ -14,11 +14,11 @@ public class SquareAnt {
 	private Color _head_color;
 	private int _id;
 	
-	public SquareAnt(int x, int y, int id) {
+	public SquareAnt(int x, int y, int id, Direction d) {
 		_id = id;
 		_color = Color.RED;
 		_head_color = Color.decode("#8B0000");
-		_dir = Direction.WEST;
+		_dir = d;
 		_x = x;
 		_y = y;
 	}
@@ -76,6 +76,10 @@ public class SquareAnt {
 	
 	public Color getHeadColor() {
 		return _head_color;
+	}
+	
+	public void setDirection(Direction d) {
+		_dir = d;
 	}
 	
 	public Direction getDirection() {

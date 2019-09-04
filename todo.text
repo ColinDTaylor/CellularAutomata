@@ -1,4 +1,6 @@
 - The starting location of the grid panel is still 0,0 in the top left, it should be such that the initial panel is the exact center of the matrix
 - Add a combo box to change ant direction on placement
-- Make reset delete all ants
 - Fix tick rate slider 
+- Fix cell size slider (make it a zoom slider instead)
+- Add a rules text box to set rules
+- Going from conway to langston doesn't properly stop conway from happening

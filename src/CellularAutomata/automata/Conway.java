@@ -8,8 +8,12 @@ import CellularAutomata.parts.*;
 public class Conway implements Automata {
 
 	private Model _model;
+	private int[] _rule_birth, _rule_survival;
+	
 	
 	public Conway() {
+		_rule_birth = new int[8];
+		_rule_survival = new int[8];
 	}
 	
 	public Conway(Model model) {
@@ -23,6 +27,8 @@ public class Conway implements Automata {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		SquareCell[][] cells = (SquareCell[][]) _model.getCells();
+
+		
 		
 		// we have to mark the cells in this loop, instead of straight up toggling them
 		// otherwise we'd mess up neighbor calculations for the following cells
@@ -65,4 +71,9 @@ public class Conway implements Automata {
 		return ID.CONWAY;
 	}
 
+	@Override
+	public boolean setRule(String rule) {
+		
+		return false;
+	}
 }

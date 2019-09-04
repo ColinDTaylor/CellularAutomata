@@ -16,11 +16,10 @@ public class Controller {
 	private int _refresh_rate;
 //	private boolean _on;
 	private Automata _automata;
-	private boolean _place_ants;
-	
 //	private int _cell_size;
 //	private int _grid_width;
 //	private int _grid_height;
+	private boolean _place_ants;
 	
 	public Controller(View view) {
 		_view = view;
@@ -64,6 +63,7 @@ public class Controller {
 				cell.reset();
 			}
 		}
+		_model.getGrid().getAnts().clear();
 		_model.getGrid().allowEdits(true);
 		_model.getGrid().repaint();
 	}
@@ -90,6 +90,12 @@ public class Controller {
 		_place_ants = b;
 	}
 	
+	public void setGridlines(boolean b) {
+		_model.getGrid().setGridlines(b);
+		_model.getGrid().repaint();
+	}
+	
+	
 	public void setRefreshRate(int r) {
 		_refresh_rate = r;
 		_timer.setDelay(r);
@@ -99,5 +105,9 @@ public class Controller {
 //		_cell_size = s;
 		_model.getGrid().setCellSize(s);
 		_model.getGrid().repaint();
+	}
+	
+	public boolean setRule(String rule) {
+		return _automata.setRule(rule);
 	}
 }
